@@ -23,7 +23,16 @@ jobs:
   release:
     if: github.event_name == 'release'
     needs: build
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: linux-x86_64
+          - runner: ubuntu-24.04-arm
+            target: linux-aarch64
+          - runner: macos-14
+            target: darwin-aarch64
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
     steps:
@@ -40,6 +49,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.release.tag_name }}
+          TARGET: ${{ matrix.target }}
         run: |
-          cp ./result/bin/apex-discord-bot apex-discord-bot-linux-x86_64
-          gh release upload "$TAG" apex-discord-bot-linux-x86_64
+          cp ./result/bin/apex-discord-bot apex-discord-bot-$TARGET
+          gh release upload "$TAG" apex-discord-bot-$TARGET
