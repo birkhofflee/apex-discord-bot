@@ -2,9 +2,11 @@
 
 Two Discord bots that display the current Apex Legends map rotation as their status — one for pubs, one for ranked.
 
+![screenshot](docs/screenshot.png)
+
 ## What it does
 
-Each bot polls the [Apex Legends API](https://apexlegendsapi.com/#map-rotation) every 5 seconds and updates its Discord presence to show the current map, time remaining, and next map:
+Polls the [Apex Legends API](https://apexlegendsapi.com/#map-rotation) every 5 seconds and updates the two bots' Discord presence to show the current map, time remaining, and next map:
 
 ```
 World's Edge (12m → Storm Point)
@@ -41,7 +43,7 @@ Add the flake as an input and reference the package in your NixOS configuration:
 
 ```nix
 # flake.nix
-inputs.apex-discord-bot.url = "github:youruser/apex-discord-bot";
+inputs.apex-discord-bot.url = "github:birkhofflee/apex-discord-bot";
 ```
 
 ```nix
