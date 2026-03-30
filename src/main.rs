@@ -150,8 +150,13 @@ async fn main() {
 async fn get_maprotation_raw(apex_api_token: &str) -> Result<MapRotationResponse, reqwest::Error> {
     // @docs https://apexlegendsapi.com/#map-rotation
     let url = format!("https://api.mozambiquehe.re/maprotation?auth={apex_api_token}&version=2");
-    reqwest::get(&url)
-        .await?
-        .json::<MapRotationResponse>()
-        .await
+    let text = reqwest::get(&url).await?.text().await?;
+    match serde_json::from_str::<MapRotationResponse>(&text) {
+        Ok(r) => Ok(r),
+        Err(e) => {
+            eprintln!("Decode error: {e}\nRaw body: {text}");
+            // Re-raise as a reqwest error by re-parsing (this will fail and propagate)
+            reqwest::get(&url).await?.json::<MapRotationResponse>().await
+        }
+    }
 }
