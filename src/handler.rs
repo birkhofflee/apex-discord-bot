@@ -31,12 +31,18 @@ impl EventHandler for MapStatusHandler {
                 let rotation = rx.borrow().clone();
                 if let Some(rotation) = rotation {
                     let map_rotation = match mode {
-                        "ranked" => &rotation.ranked,
+                        "ranked" => match rotation.ranked.as_ref() {
+                            Some(ranked) => ranked,
+                            None => continue,
+                        },
                         "ltm" => match rotation.ltm.as_ref() {
                             Some(ltm) => ltm,
                             None => continue,
                         },
-                        _ => &rotation.battle_royale,
+                        _ => match rotation.battle_royale.as_ref() {
+                            Some(br) => br,
+                            None => continue,
+                        },
                     };
                     let status = format!(
                         "{} ({} → {})",

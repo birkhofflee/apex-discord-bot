@@ -2,8 +2,8 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MapRotationResponse {
-    pub battle_royale: ModeMapRotation,
-    pub ranked: ModeMapRotation,
+    pub battle_royale: Option<ModeMapRotation>,
+    pub ranked: Option<ModeMapRotation>,
     pub ltm: Option<ModeMapRotation>,
 }
 
@@ -14,6 +14,7 @@ pub struct ModeMapRotation {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 pub struct CurrentMap {
     pub start: u64,
     pub end: u64,
@@ -41,6 +42,7 @@ pub struct CurrentMap {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 pub struct NextMap {
     pub start: u64,
     pub end: u64,
