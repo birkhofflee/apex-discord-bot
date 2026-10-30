@@ -16,8 +16,8 @@
         ];
 
         commonBuildInputs = with pkgs;
-          lib.optionals (!stdenv.isDarwin) [ openssl ]
-          ++ lib.optionals stdenv.isDarwin [ libiconv ];
+          lib.optionals (!stdenv.hostPlatform.isDarwin) [ openssl ]
+          ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
       in
       {
         packages.default = pkgs.rustPlatform.buildRustPackage {
