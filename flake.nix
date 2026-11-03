@@ -3,43 +3,59 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
+  outputs = { self, nixpkgs }:
+    let
+      forAllSystems = nixpkgs.lib.genAttrs [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
 
-        commonNativeBuildInputs = with pkgs; [
-          pkg-config
-        ];
+      perSystem = forAllSystems (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          inherit pkgs;
 
-        commonBuildInputs = with pkgs;
-          lib.optionals (!stdenv.hostPlatform.isDarwin) [ openssl ]
-          ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
-      in
-      {
-        packages.default = pkgs.rustPlatform.buildRustPackage {
-          pname = "apex-discord-bot";
-          version = "0.1.0";
-          src = ./.;
+          commonNativeBuildInputs = with pkgs; [
+            pkg-config
+          ];
 
-          cargoLock.lockFile = ./Cargo.lock;
+          commonBuildInputs = with pkgs;
+            lib.optionals (!stdenv.hostPlatform.isDarwin) [ openssl ]
+            ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
+        });
+    in
+    {
+      packages = forAllSystems (system:
+        with perSystem.${system}; {
+          default = pkgs.rustPlatform.buildRustPackage {
+            pname = "apex-discord-bot";
+            version = "0.1.0";
+            src = ./.;
 
-          nativeBuildInputs = commonNativeBuildInputs;
-          buildInputs = commonBuildInputs;
-        };
+            cargoLock.lockFile = ./Cargo.lock;
 
-        devShells.default = pkgs.mkShell {
-          nativeBuildInputs = commonNativeBuildInputs;
-          buildInputs = commonBuildInputs ++ (with pkgs; [
-            rustc
-            cargo
-            rust-analyzer
-            just
-          ]);
-        };
-      }
-    );
+            nativeBuildInputs = commonNativeBuildInputs;
+            buildInputs = commonBuildInputs;
+          };
+        });
+
+      devShells = forAllSystems (system:
+        with perSystem.${system}; {
+          default = pkgs.mkShell {
+            nativeBuildInputs = commonNativeBuildInputs;
+            buildInputs = commonBuildInputs ++ (with pkgs; [
+              rustc
+              cargo
+              rust-analyzer
+              just
+            ]);
+          };
+        });
+    };
 }
